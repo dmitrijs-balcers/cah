@@ -1,10 +1,6 @@
 WhiteCards = new Mongo.Collection("whiteCards");
 BlackCards = new Mongo.Collection("blackCards");
-
-var funnyNames = [
-    'avatar',
-    'priest boy'
-];
+Names = new Mongo.Collection("names");
 
 if (Meteor.isClient) {
 
@@ -16,7 +12,7 @@ if (Meteor.isClient) {
     Template.hello.helpers({
 
         userName: function () {
-            return userName
+            return userName;
         },
 
         whiteCard: function () {
