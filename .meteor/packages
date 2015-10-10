@@ -4,12 +4,14 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
+#client
 cah:common
 cah:layout
 cah:test
 cah:welcome
-cah:cards
 cah:room
+cah:game
 
 #server
 cah:names
+cah:cards
