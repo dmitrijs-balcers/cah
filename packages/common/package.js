@@ -1,5 +1,5 @@
 Package.describe({
-    name: 'cah:test',
+    name: 'cah:common',
     version: '0.0.1',
     // Brief, one-line summary of the package.
     summary: '',
@@ -10,9 +10,27 @@ Package.describe({
     documentation: 'README.md'
 });
 
+var libs = [
+    'kadira:flow-router',
+    'kadira:blaze-layout',
+    'ecmascript',
+    'meteor-base',
+    'mobile-experience',
+    'mongo',
+    'blaze-html-templates',
+    'session',
+    'jquery',
+    'tracker',
+    'standard-minifiers',
+    'es5-shim',
+    'ecmascript',
+    'autopublish',
+    'insecure',
+    'semantic:ui-css'
+];
+
 Package.onUse(function (api) {
     api.versionsFrom('1.2.0.2');
-    api.use('cah:common');
-    api.addFiles('test.html', 'client');
-    api.addFiles('test.js', 'client');
+    api.imply(libs);
+    api.use(libs);
 });
