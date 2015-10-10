@@ -13,6 +13,6 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.2.0.2');
   api.use('cah:common');
-  api.addFiles('welcome.html');
-  api.addFiles('welcome.js');
+  api.addFiles('welcome.html', "client");
+  api.addFiles('welcome.js', "client");
 });
