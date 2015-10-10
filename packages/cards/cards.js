@@ -1,9 +1,12 @@
-var cardsInRoom = {};
+var blackCardsInRoom = {},
+    whiteCardsInRoom = {};
 
 BlackCards = new Mongo.Collection("blackCards");
+WhiteCards = new Mongo.Collection("whiteCards");
 
 Meteor.methods({
-    getRandomBlackCard : _getRandomBlackCard
+    getRandomBlackCard : _getRandomBlackCard,
+    getRandomWhiteCards : _getRandomWhiteCards
 });
 
 function _getRandomBlackCard(roomId) {
@@ -14,38 +17,90 @@ function _getRandomBlackCard(roomId) {
 
     console.log('packages/cards/cards.js', 'getting random black card for room', roomId);
 
-    if(!cardsInRoom[roomId]) {
+    if(!blackCardsInRoom[roomId]) {
 
         console.log('getting black cards from database');
 
         try {
-            cardsInRoom[roomId] = BlackCards.find({}).fetch();
+            blackCardsInRoom[roomId] = BlackCards.find({}).fetch();
         } catch (e) {
 
-            console.error(e, 'error getting cards from database');
+            console.error(e, 'error getting black cards from database');
             return;
         }
 
-        cardsInRoom[roomId] = _.pluck(cardsInRoom[roomId], 'text');
+        blackCardsInRoom[roomId] = _.pluck(blackCardsInRoom[roomId], 'text');
     }
 
-    if(cardsInRoom[roomId].length <= 0) {
+    if(blackCardsInRoom[roomId].length <= 0) {
 
-        console.error('No more cards for room:', roomId);
-        throw new Meteor.Error('No more cards! :(');
+        console.error('No more black cards for room:', roomId);
+        throw new Meteor.Error('No black more cards! :(');
     }
 
-    console.log('getting one black card from stack', cardsInRoom[roomId].length);
 
-    randomId = _.random(0, cardsInRoom[roomId].length - 1);
+    randomId = _.random(0, blackCardsInRoom[roomId].length - 1);
 
-    card = cardsInRoom[roomId][randomId];
+    card = blackCardsInRoom[roomId][randomId];
 
     console.log('got black random card', card);
 
-    cardsInRoom[roomId] = _.without(cardsInRoom[roomId], card);
+    blackCardsInRoom[roomId] = _.without(blackCardsInRoom[roomId], card);
 
-    console.log('removed the card from room stack');
+    console.log('removed the black card from room stack');
+    console.log('black cards remaining', blackCardsInRoom[roomId].length);
 
     return card;
+}
+
+function _getRandomWhiteCards(roomId, count) {
+
+    var card,
+        cards,
+        randomId;
+
+    console.log('packages/cards/cards.js', 'getting random ', count,' white cards for room', roomId);
+
+    if(!whiteCardsInRoom[roomId]) {
+
+        console.log('getting white cards from database');
+
+        try {
+            whiteCardsInRoom[roomId] = WhiteCards.find({}).fetch();
+        } catch (e) {
+
+            console.error(e, 'error getting white cards from database');
+            return;
+        }
+
+        whiteCardsInRoom[roomId] = _.pluck(whiteCardsInRoom[roomId], 'text');
+    }
+
+    if(whiteCardsInRoom[roomId].length <= 0) {
+
+        console.error('No more white cards for room:', roomId);
+        throw new Meteor.Error('No white more cards! :(');
+    }
+
+    cards = [];
+
+    _.times(count, function(){
+
+        console.log('getting one white card from stack', whiteCardsInRoom[roomId].length);
+
+        randomId = _.random(0, whiteCardsInRoom[roomId].length - 1);
+
+        card = whiteCardsInRoom[roomId][randomId];
+
+        console.log('got white random card', card);
+
+        cards.push(card);
+
+        whiteCardsInRoom[roomId] = _.without(whiteCardsInRoom[roomId], card);
+
+        console.log('removed the white card from room stack');
+        console.log('white cards remaining', whiteCardsInRoom[roomId].length);
+    });
+
+    return cards;
 }
