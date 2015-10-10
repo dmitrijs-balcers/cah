@@ -11,7 +11,7 @@ Template.welcome.onCreated(function () {
     this.winningCard = {
         player: 'Suzan',
         whiteCards: ['blahA', 'blahB'],
-        blackCard: 'a: _, b: _',
+        blackCard: 'a:',
         votes: 10
     };
 });
@@ -23,6 +23,10 @@ Template.welcome.helpers({
 
     blackCard: function () {
         var winningCard = Template.instance().winningCard;
+
+        if (winningCard.blackCard.indexOf("_")) {
+            return `${winningCard.blackCard} ${winningCard.whiteCards[0]}`;
+        }
 
         _.each(winningCard.whiteCards, function (whiteCard) {
             winningCard.blackCard = winningCard.blackCard.replace('_', whiteCard);
