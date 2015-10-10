@@ -11,11 +11,10 @@ FlowRouter.route('/game', {
 Template.game.onCreated(function () {
 
     var self = this,
-        cardCount = 1,
-        name;
+        cardCount = 1;
 
+    self.playerName = new ReactiveVar();
     self.blackCard = new ReactiveVar();
-    self.player = new ReactiveVar();
     self.maxWhiteCards = new ReactiveVar();
     self.maxWhiteCards = new ReactiveVar();
 
@@ -36,16 +35,15 @@ Template.game.onCreated(function () {
             console.error(e);
         }
 
-        name = r;
+        self.playerName.set(r);
 
-        self.playerName.set(name);
+        Meteor.call('setMaxCardCount', ROOM_ID, cardCount);
+        Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get());
+
+        self.autorun(function () {
+            self.subscribe('players', self.playerName.get(), ROOM_ID);
+        });
     });
-
-    Meteor.call('setMaxCardCount', ROOM_ID, cardCount);
-
-    Meteor.call('initiatePlayer', ROOM_ID, name);
-
-    self.player.set();
 });
 
 Template.game.onRendered(() => {

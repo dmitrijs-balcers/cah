@@ -8,6 +8,10 @@ WhiteCards = new Mongo.Collection("whiteCards");
 SelectedCards = new Mongo.Collection("selectedCards");
 Players = new Mongo.Collection("players");
 
+Meteor.publish('players', function (playerName, roomId) {
+    return Players.find({name: playerName, roomId: roomId});
+});
+
 Meteor.methods({
 
     getRandomBlackCard : _getRandomBlackCard,
@@ -15,7 +19,7 @@ Meteor.methods({
     initiatePlayer: _initiatePlayer,
     playerSelectedCard: _playerSelectedCard,
     playerVotedForCard: _playerVotedForCard,
-    endRound: _endRound,
+    endRound: _endRound
 });
 
 function _getRandomBlackCard(roomId) {
