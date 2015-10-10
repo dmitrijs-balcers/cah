@@ -15,41 +15,39 @@ Template.game.onCreated(function () {
     var self = this;
 
     self.playerName = new ReactiveVar();
-    self.blackCard = new ReactiveVar();
 
-    Meteor.call('getRandomBlackCard', ROOM_ID, false, (e, r) => {
+    Meteor.call('getRandomBlackCard', ROOM_ID, false, (e) => {
 
         if (e) {
+
             console.error(e);
             return;
         }
 
-        self.blackCard.set(r);
-    });
+        Meteor.call('getName', (e, r) => {
 
-    Meteor.call('getName', (e, r) => {
-
-        if (e) {
-            console.error(e);
-            return;
-        }
-
-        self.playerName.set(r);
-
-        Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get(), (e, r) => {
-
-            if(e) {
-                alert(e);
+            if (e) {
+                console.error(e);
                 return;
             }
-            
-            self.autorun(() => {
-                self.subscribe('players', ROOM_ID);
-                self.subscribe('selectedCards', ROOM_ID);
-                self.subscribe('currentBlackCards', ROOM_ID);
-            });
-        });
 
+            self.playerName.set(r);
+
+            Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get(), (e) => {
+
+                if(e) {
+                    alert(e);
+                    return;
+                }
+
+                self.autorun(() => {
+                    self.subscribe('players', ROOM_ID);
+                    self.subscribe('selectedCards', ROOM_ID);
+                    self.subscribe('currentBlackCards', ROOM_ID);
+                });
+            });
+
+        });
     });
 });
 
