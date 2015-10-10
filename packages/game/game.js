@@ -1,4 +1,4 @@
-var ROOM_ID = 'roomId_hard1';
+const ROOM_ID = 'roomId_hard1';
 
 Players = new Mongo.Collection("players");
 SelectedCards = new Mongo.Collection("selectedCards");
@@ -12,8 +12,7 @@ FlowRouter.route('/game', {
 
 Template.game.onCreated(function () {
 
-    var self = this,
-        cardCount = 1;
+    var self = this;
 
     self.playerName = new ReactiveVar();
     self.blackCard = new ReactiveVar();
@@ -22,6 +21,7 @@ Template.game.onCreated(function () {
 
         if (e) {
             console.error(e);
+            return;
         }
 
         self.blackCard.set(r);
@@ -31,6 +31,7 @@ Template.game.onCreated(function () {
 
         if (e) {
             console.error(e);
+            return;
         }
 
         self.playerName.set(r);
@@ -42,7 +43,7 @@ Template.game.onCreated(function () {
                 return;
             }
             
-            self.autorun(function () {
+            self.autorun(() => {
                 self.subscribe('players', ROOM_ID);
                 self.subscribe('selectedCards', ROOM_ID);
                 self.subscribe('currentBlackCards', ROOM_ID);
@@ -50,28 +51,6 @@ Template.game.onCreated(function () {
         });
 
     });
-});
-
-Template.game.onRendered(() => {
-
-});
-
-Template.game.events({
-
-    'click .whiteCard' : function (event) {
-        //TODO:change from innerHTML to something more sensible
-        Meteor.call('playerSelectedCard', ROOM_ID, Template.instance().playerName.get(), event.target.innerHTML);
-    },
-
-    'click #end' : function () {
-
-        Meteor.call('endRound', ROOM_ID);
-    },
-
-    'click #exit' : function () {
-
-        Meteor.call('exitGame', ROOM_ID, Template.instance().playerName.get());
-    }
 });
 
 Template.game.helpers({
@@ -92,5 +71,24 @@ Template.game.helpers({
 
     selectedCards: function() {
         return SelectedCards.find({roomId: ROOM_ID}).fetch();
+    }
+});
+
+Template.game.events({
+
+    'click .whiteCard' : function (e, t) {
+
+        //TODO:change from innerHTML to something more sensible
+        Meteor.call('playerSelectedCard', ROOM_ID, t.playerName.get(), event.target.innerHTML);
+    },
+
+    'click #end' : function () {
+
+        Meteor.call('endRound', ROOM_ID);
+    },
+
+    'click #exit' : function (e, t) {
+
+        Meteor.call('exitGame', ROOM_ID, t.playerName.get());
     }
 });
