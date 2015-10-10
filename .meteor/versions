@@ -13,6 +13,7 @@ caching-html-compiler@1.0.2
 cah:cards@0.0.1
 cah:common@0.0.1
 cah:layout@0.0.1
+cah:names@0.0.1
 cah:room@0.0.1
 cah:test@0.0.1
 cah:welcome@0.0.1
