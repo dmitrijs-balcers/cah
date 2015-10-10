@@ -1,11 +1,13 @@
 <template name="game">
     Game
-    <b style="font-weight: 700"> {{blankify blackCard}}</b>
-    {{#each whiteCards}}
-        {{> card}}
-    {{/each}}
+    <p>
+        <b style="font-weight: 700"> {{blankify blackCard}}</b>
+    </p>
+    <p>
+        {{player}}
+    </p>
 </template>
 
 <template name="card">
-    <p>{{this}}</p>
+    <p class="whiteCard">{{this}}</p>
 </template>

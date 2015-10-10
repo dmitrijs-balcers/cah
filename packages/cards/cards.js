@@ -1,12 +1,21 @@
 var blackCardsInRoom = {},
-    whiteCardsInRoom = {};
+    whiteCardsInRoom = {},
+    currentBlackCard = {},
+    maxCardCount = {};
 
 BlackCards = new Mongo.Collection("blackCards");
 WhiteCards = new Mongo.Collection("whiteCards");
+SelectedCards = new Mongo.Collection("selectedCards");
+Players = new Mongo.Collection("players");
 
 Meteor.methods({
+
     getRandomBlackCard : _getRandomBlackCard,
-    getRandomWhiteCards : _getRandomWhiteCards
+    setMaxCardCount: _setMaxCardCount,
+    initiatePlayer: _initiatePlayer,
+    playerSelectedCard: _playerSelectedCard,
+    playerVotedForCard: _playerVotedForCard,
+    endRound: _endRound,
 });
 
 function _getRandomBlackCard(roomId) {
@@ -48,6 +57,8 @@ function _getRandomBlackCard(roomId) {
 
     console.log('removed the black card from room stack');
     console.log('black cards remaining', blackCardsInRoom[roomId].length);
+
+    currentBlackCard[roomId] = card;
 
     return card;
 }
@@ -102,4 +113,129 @@ function _getRandomWhiteCards(roomId, count) {
     });
 
     return cards;
+}
+
+function _setMaxCardCount(roomId, count) {
+
+    maxCardCount[roomId] = count;
+}
+
+function _initiatePlayer(roomId, name) {
+
+    var player = {
+        name: name,
+        roomId: roomId,
+        score: 0,
+        cards: _getRandomWhiteCards(roomId, 10)
+    };
+
+    Players.insert(player);
+}
+
+function _playerSelectedCard(roomId, playerName, card) {
+
+    var cards;
+
+    cards = SelectedCards.find({player: playerName}).fetch();
+
+    if(!cards || !cards.whiteCards || cards.whiteCards.length < maxCardCount[roomId]) {
+
+        console.log(playerName, 'selected white card', card);
+
+        Player.update(
+            {
+                name: playerName,
+                roomId: roomId
+            },
+            {
+                $pull: {
+                        cards: card
+                    }
+            }
+        );
+
+        if(cards && cards.whiteCards) {
+
+            SelectedCards.update(
+                {
+                    player: playerName,
+                    roomId: roomId
+                },
+                {
+                    $push: {
+                            whiteCards: card
+                        }
+                });
+            return;
+        }
+
+        SelectedCards.insert({
+
+            player: playerName,
+            whiteCards: [card],
+            roomId: roomId,
+            votes: 0
+        });
+
+        return;
+    }
+
+    console.error('player has selected max cards');
+    throw new Meteor.Error('player has selected max cards');
+}
+
+function _playerVotedForCard(playerName, selectedCardsId) {
+
+    var playerCard;
+
+    playerCard = SelectedCards.findOne({_id: selectedCardsId});
+
+    if(card) {
+        console.error('player cannot vote for own card');
+        throw new Meteor.error('player cannot vote for his own card');
+    }
+
+    SelectedCards.update({_id: selectedCardsId}, {$inc: {votes: 1}});
+}
+
+function _endRound(roomId) {
+
+    var winningCards;
+
+    winningCards = SelectedCards.findOne({}, {sort: {votes:1}});
+    winningCards.blackCard = currentBlackCard[roomId];
+
+    WinningCards.insert(winningCards);
+
+    Players.update(
+        {
+            name: winningCards.player,
+            roomId: roomId
+        },
+        {
+            $inc: {score: 1}
+        });
+
+    Players.update(
+        {
+            roomId: roomId
+        },
+        {
+            $push: {
+                $each: _getRandomWhiteCards(roomId, winningCards.whiteCards.length)
+            }
+        },
+        {
+            multi: true
+        }
+    );
+
+    SelectedCards.remove(
+        {
+            roomId: roomId
+        },
+        {
+            multi: true
+        }
+    );
 }
