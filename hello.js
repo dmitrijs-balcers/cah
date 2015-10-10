@@ -2,6 +2,12 @@ WhiteCards = new Mongo.Collection("whiteCards");
 BlackCards = new Mongo.Collection("blackCards");
 Names = new Mongo.Collection("names");
 
+FlowRouter.route('/test', {
+    action: function(params) {
+        BlazeLayout.render('test');
+    }
+});
+
 if (Meteor.isClient) {
 
     var userName = funnyNames[_.random(0, funnyNames.length - 1)];
