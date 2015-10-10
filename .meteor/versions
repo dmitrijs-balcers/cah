@@ -13,6 +13,7 @@ caching-html-compiler@1.0.2
 cah:common@0.0.1
 cah:layout@0.0.1
 cah:test@0.0.1
+cah:welcome@0.0.1
 callback-hook@1.0.4
 check@1.0.6
 coffeescript@1.0.10
