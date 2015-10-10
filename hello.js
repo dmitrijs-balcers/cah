@@ -1,3 +1,6 @@
+WhiteCards = new Mongo.Collection("whiteCards");
+BlackCards = new Mongo.Collection("blackCards");
+
 if (Meteor.isClient) {
   // counter starts at 0
   Session.setDefault('counter', 0);
