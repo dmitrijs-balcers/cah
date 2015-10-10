@@ -43,6 +43,8 @@ function _getRandomBlackCard(roomId, regenerate) {
 
     card = card && card.card;
 
+    // If there is a card assigned to this room, then use that card.
+    // If there isn't any card assigned to this room, then generate new card.
     if (!blackCardsInRoom[roomId]) {
 
         console.log('no black cards in the room');
@@ -90,15 +92,9 @@ function _getRandomWhiteCards(roomId, count) {
 
     if (!whiteCardsInRoom[roomId]) {
 
-        try {
-            whiteCardsInRoom[roomId] = WhiteCards.find({}).fetch();
-        } catch (e) {
+        var whiteCards = WhiteCards.find({}).fetch();
 
-            console.error(e, 'error getting white cards from database');
-            throw new Meteor.Error('error getting white cards from database');
-        }
-
-        whiteCardsInRoom[roomId] = _.pluck(whiteCardsInRoom[roomId], 'text');
+        whiteCardsInRoom[roomId] = _.pluck(whiteCards, 'text');
     }
 
     if (whiteCardsInRoom[roomId].length <= 0) {
@@ -164,12 +160,8 @@ function _playerSelectedCard(roomId, playerName, card) {
                 roomId: roomId,
             },
             {
-                $set: {
-                    lastActivity: new Date()
-                },
-                $pull: {
-                    cards: card
-                }
+                $set: {lastActivity: new Date()},
+                $pull: {cards: card}
             }
         );
 
@@ -181,9 +173,7 @@ function _playerSelectedCard(roomId, playerName, card) {
                     roomId: roomId
                 },
                 {
-                    $push: {
-                        whiteCards: card
-                    }
+                    $push: {whiteCards: card}
                 });
             return;
         }
@@ -210,18 +200,16 @@ function _playerVotedForCard(roomId, playerName, selectedCardsId) {
     Players.update(
         {
             name: playerName,
-            roomId: roomId,
+            roomId: roomId
         },
         {
-            $set: {
-                lastActivity: new Date()
-            }
+            $set: {lastActivity: new Date()}
         }
     );
 
     playerCard = SelectedCards.findOne({_id: selectedCardsId});
 
-    if (card) {
+    if (playerCard) {
         console.error('player cannot vote for own card');
         throw new Meteor.error('player cannot vote for his own card');
     }
@@ -248,29 +236,19 @@ function _endRound(roomId) {
         });
 
     Players.update(
-        {
-            roomId: roomId
-        },
+        {roomId: roomId},
         {
             $push: {
                 cards: {
                     $each: _getRandomWhiteCards(roomId, winningCards.whiteCards.length)
                 }
             },
-            $set: {
-                lastActivity: new Date()
-            }
+            $set: {lastActivity: new Date()}
         },
-        {
-            multi: true
-        }
+        {multi: true}
     );
 
-    SelectedCards.remove(
-        {
-            roomId: roomId
-        }
-    );
+    SelectedCards.remove({roomId: roomId});
 
     _getRandomBlackCard(roomId, true);
 }
