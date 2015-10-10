@@ -1,69 +1,90 @@
 var blackCardsInRoom = {},
     whiteCardsInRoom = {},
-    currentBlackCard = {},
     maxCardCount = {};
 
 BlackCards = new Mongo.Collection("blackCards");
+CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 WhiteCards = new Mongo.Collection("whiteCards");
+WinningCards = new Mongo.Collection("winningCards");
 SelectedCards = new Mongo.Collection("selectedCards");
 Players = new Mongo.Collection("players");
 
-Meteor.publish('players', function (playerName, roomId) {
-    return Players.find({name: playerName, roomId: roomId});
+Meteor.publish('players', function (roomId) {
+    return Players.find({roomId: roomId});
+});
+Meteor.publish('selectedCards', function (roomId) {
+    return SelectedCards.find({roomId: roomId});
+});
+Meteor.publish('currentBlackCards', function (roomId) {
+    return CurrentBlackCards.find({roomId: roomId});
 });
 
 Meteor.methods({
 
     getRandomBlackCard : _getRandomBlackCard,
-    setMaxCardCount: _setMaxCardCount,
     initiatePlayer: _initiatePlayer,
     playerSelectedCard: _playerSelectedCard,
     playerVotedForCard: _playerVotedForCard,
     endRound: _endRound
 });
 
-function _getRandomBlackCard(roomId) {
+function _getRandomBlackCard(roomId, regenerate) {
 
     var card,
         randomId;
 
     console.log('packages/cards/cards.js', 'getting random black card for room', roomId);
 
+    card = CurrentBlackCards.findOne({roomId: roomId});
+
+    card = card ? card.card : undefined;
+
     if(!blackCardsInRoom[roomId]) {
 
-        console.log('getting black cards from database');
+        console.log('no black cards in room');
 
         try {
             blackCardsInRoom[roomId] = BlackCards.find({}).fetch();
         } catch (e) {
 
             console.error(e, 'error getting black cards from database');
-            return;
+            throw new Meteor.Error('error getting black cards from database');
         }
 
         blackCardsInRoom[roomId] = _.pluck(blackCardsInRoom[roomId], 'text');
+
+        regenerate = true;
     }
 
-    if(blackCardsInRoom[roomId].length <= 0) {
+    if(regenerate) {
 
-        console.error('No more black cards for room:', roomId);
-        throw new Meteor.Error('No black more cards! :(');
+        if(blackCardsInRoom[roomId].length <= 0) {
+
+            console.error('No more black cards for room:', roomId);
+            throw new Meteor.Error('No black more cards! :(');
+        }
+
+        randomId = _.random(0, blackCardsInRoom[roomId].length - 1);
+
+        if(card) {
+
+            card = blackCardsInRoom[roomId][randomId];
+            CurrentBlackCards.update({roomId: roomId}, {$set: {card: card}});
+        } else {
+
+            card = blackCardsInRoom[roomId][randomId];
+            CurrentBlackCards.insert({roomId: roomId, card: card});
+        }
+
+        blackCardsInRoom[roomId] = _.without(blackCardsInRoom[roomId], card);
+
+        _setMaxCardCount(roomId, (card.match(/_/g)||[]).length || 1);
+
+        return card;
     }
 
-
-    randomId = _.random(0, blackCardsInRoom[roomId].length - 1);
-
-    card = blackCardsInRoom[roomId][randomId];
-
-    console.log('got black random card', card);
-
-    blackCardsInRoom[roomId] = _.without(blackCardsInRoom[roomId], card);
-
-    console.log('removed the black card from room stack');
-    console.log('black cards remaining', blackCardsInRoom[roomId].length);
-
-    currentBlackCard[roomId] = card;
-
+    _setMaxCardCount(roomId, (card.match(/_/g)||[]).length || 1);
+    
     return card;
 }
 
@@ -77,14 +98,12 @@ function _getRandomWhiteCards(roomId, count) {
 
     if(!whiteCardsInRoom[roomId]) {
 
-        console.log('getting white cards from database');
-
         try {
             whiteCardsInRoom[roomId] = WhiteCards.find({}).fetch();
         } catch (e) {
 
             console.error(e, 'error getting white cards from database');
-            return;
+            throw new Meteor.Error('error getting white cards from database');
         }
 
         whiteCardsInRoom[roomId] = _.pluck(whiteCardsInRoom[roomId], 'text');
@@ -100,20 +119,14 @@ function _getRandomWhiteCards(roomId, count) {
 
     _.times(count, function(){
 
-        console.log('getting one white card from stack', whiteCardsInRoom[roomId].length);
-
         randomId = _.random(0, whiteCardsInRoom[roomId].length - 1);
 
         card = whiteCardsInRoom[roomId][randomId];
-
-        console.log('got white random card', card);
 
         cards.push(card);
 
         whiteCardsInRoom[roomId] = _.without(whiteCardsInRoom[roomId], card);
 
-        console.log('removed the white card from room stack');
-        console.log('white cards remaining', whiteCardsInRoom[roomId].length);
     });
 
     return cards;
@@ -140,13 +153,13 @@ function _playerSelectedCard(roomId, playerName, card) {
 
     var cards;
 
-    cards = SelectedCards.find({player: playerName}).fetch();
-
-    if(!cards || !cards.whiteCards || cards.whiteCards.length < maxCardCount[roomId]) {
+    cards = SelectedCards.findOne({player: playerName, roomId: roomId}) || {};
+    console.log(cards, 'cards');
+    if(!cards.whiteCards || cards.whiteCards.length < maxCardCount[roomId]) {
 
         console.log(playerName, 'selected white card', card);
 
-        Player.update(
+        Players.update(
             {
                 name: playerName,
                 roomId: roomId
@@ -158,7 +171,7 @@ function _playerSelectedCard(roomId, playerName, card) {
             }
         );
 
-        if(cards && cards.whiteCards) {
+        if(cards.whiteCards) {
 
             SelectedCards.update(
                 {
@@ -206,8 +219,8 @@ function _endRound(roomId) {
 
     var winningCards;
 
-    winningCards = SelectedCards.findOne({}, {sort: {votes:1}});
-    winningCards.blackCard = currentBlackCard[roomId];
+    winningCards = SelectedCards.findOne({}, {sort: {votes:1}, fields: {_id: 0}});
+    winningCards.blackCard = CurrentBlackCards.findOne({roomId: roomId}).card;
 
     WinningCards.insert(winningCards);
 
@@ -226,7 +239,9 @@ function _endRound(roomId) {
         },
         {
             $push: {
-                $each: _getRandomWhiteCards(roomId, winningCards.whiteCards.length)
+                cards: {
+                    $each: _getRandomWhiteCards(roomId, winningCards.whiteCards.length)
+                }
             }
         },
         {
@@ -237,9 +252,8 @@ function _endRound(roomId) {
     SelectedCards.remove(
         {
             roomId: roomId
-        },
-        {
-            multi: true
         }
     );
+
+    _getRandomBlackCard(roomId, true);
 }

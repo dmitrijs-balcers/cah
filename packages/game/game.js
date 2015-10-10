@@ -1,6 +1,8 @@
 var ROOM_ID = 'roomId_hard1';
 
 Players = new Mongo.Collection("players");
+SelectedCards = new Mongo.Collection("selectedCards");
+CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 
 FlowRouter.route('/game', {
     action: function(params) {
@@ -15,17 +17,13 @@ Template.game.onCreated(function () {
 
     self.playerName = new ReactiveVar();
     self.blackCard = new ReactiveVar();
-    self.maxWhiteCards = new ReactiveVar();
-    self.maxWhiteCards = new ReactiveVar();
 
-    Meteor.call('getRandomBlackCard', ROOM_ID, (e, r) => {
+    Meteor.call('getRandomBlackCard', ROOM_ID, false, (e, r) => {
 
         if (e) {
             console.error(e);
         }
 
-        cardCount = (r.match(/_/g)||[]).length || 1;
-        self.maxWhiteCards.set(cardCount);
         self.blackCard.set(r);
     });
 
@@ -37,11 +35,12 @@ Template.game.onCreated(function () {
 
         self.playerName.set(r);
 
-        Meteor.call('setMaxCardCount', ROOM_ID, cardCount);
         Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get());
 
         self.autorun(function () {
-            self.subscribe('players', self.playerName.get(), ROOM_ID);
+            self.subscribe('players', ROOM_ID);
+            self.subscribe('selectedCards', ROOM_ID);
+            self.subscribe('currentBlackCards', ROOM_ID);
         });
     });
 });
@@ -53,14 +52,20 @@ Template.game.onRendered(() => {
 Template.game.events({
 
     'click .whiteCard' : function (event) {
+        //TODO:change from innerHTML to something more sensible
+        Meteor.call('playerSelectedCard', ROOM_ID, Template.instance().playerName.get(), event.target.innerHTML);
+    },
 
+    'click #end' : function () {
+
+        Meteor.call('endRound', ROOM_ID);
     }
 });
 
 Template.game.helpers({
 
     blackCard: function () {
-        return Template.instance().blackCard.get();
+        return CurrentBlackCards.findOne({roomId: ROOM_ID});
     },
 
     player: function () {
@@ -73,5 +78,9 @@ Template.game.helpers({
 
     playerName: function() {
         return Template.instance().playerName.get();
+    },
+
+    selectedCards: function() {
+        return SelectedCards.find({roomId: ROOM_ID}).fetch();
     }
 });

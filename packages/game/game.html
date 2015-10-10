@@ -1,13 +1,35 @@
 <template name="game">
-    Game
+
     <p>
-        <b style="font-weight: 700"> {{blankify blackCard}}</b>
+        <b style="font-weight: 700"> Black card: {{blankify blackCard.card}}</b>
     </p>
+
+    <b style="font-weight: 600">Players cards</b>
+    <ul>
+        {{#each player.cards}}
+            {{> card}}
+        {{/each}}
+    </ul>
     <p>
-        {{player}}
+        <b>Selected cards:</b>
     </p>
+    {{#each selectedCards}}
+        <p>
+            <b>{{this.player}}</b>
+        </p>
+        {{> selectedCard}}
+    {{/each}}
+    <button class="ui orange basic right floated fluid inverted button" id="end">End Round</button>
 </template>
 
 <template name="card">
-    <p class="whiteCard">{{this}}</p>
+    <li class="whiteCard">{{this}}</li>
+</template>
+
+<template name="selectedCard">
+    <ul>
+        {{#each this.whiteCards}}
+            <li class="selectedCard">{{this}}</li>
+        {{/each}}
+    </ul>
 </template>
