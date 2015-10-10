@@ -19,6 +19,11 @@ Meteor.publish('currentBlackCards', function (roomId) {
     return CurrentBlackCards.find({roomId: roomId});
 });
 
+Meteor.setInterval(function() {
+
+    Players.remove({lastActivity: {$lte: new Date(new Date() - 5 * 60 * 1000)}});
+}, 10 * 1000);
+
 Meteor.methods({
 
     getRandomBlackCard : _getRandomBlackCard,
@@ -84,7 +89,7 @@ function _getRandomBlackCard(roomId, regenerate) {
     }
 
     _setMaxCardCount(roomId, (card.match(/_/g)||[]).length || 1);
-    
+
     return card;
 }
 
@@ -139,11 +144,18 @@ function _setMaxCardCount(roomId, count) {
 
 function _initiatePlayer(roomId, name) {
 
+    var count = Players.find({roomId: roomId}).count();
+
+    if(count >= 10) {
+        throw new Meteor.Error('Room is full');
+    }
+
     var player = {
         name: name,
         roomId: roomId,
         score: 0,
-        cards: _getRandomWhiteCards(roomId, 10)
+        cards: _getRandomWhiteCards(roomId, 10),
+        lastActivity: new Date()
     };
 
     Players.insert(player);
@@ -154,7 +166,7 @@ function _playerSelectedCard(roomId, playerName, card) {
     var cards;
 
     cards = SelectedCards.findOne({player: playerName, roomId: roomId}) || {};
-    console.log(cards, 'cards');
+
     if(!cards.whiteCards || cards.whiteCards.length < maxCardCount[roomId]) {
 
         console.log(playerName, 'selected white card', card);
@@ -162,12 +174,15 @@ function _playerSelectedCard(roomId, playerName, card) {
         Players.update(
             {
                 name: playerName,
-                roomId: roomId
+                roomId: roomId,
             },
             {
+                $set: {
+                    lastActivity: new Date()
+                },
                 $pull: {
                         cards: card
-                    }
+                }
             }
         );
 
@@ -201,9 +216,21 @@ function _playerSelectedCard(roomId, playerName, card) {
     throw new Meteor.Error('player has selected max cards');
 }
 
-function _playerVotedForCard(playerName, selectedCardsId) {
+function _playerVotedForCard(roomId, playerName, selectedCardsId) {
 
     var playerCard;
+
+    Players.update(
+        {
+            name: playerName,
+            roomId: roomId,
+        },
+        {
+            $set: {
+                lastActivity: new Date()
+            }
+        }
+    );
 
     playerCard = SelectedCards.findOne({_id: selectedCardsId});
 
@@ -242,6 +269,9 @@ function _endRound(roomId) {
                 cards: {
                     $each: _getRandomWhiteCards(roomId, winningCards.whiteCards.length)
                 }
+            },
+            $set: {
+                lastActivity: new Date()
             }
         },
         {

@@ -35,13 +35,20 @@ Template.game.onCreated(function () {
 
         self.playerName.set(r);
 
-        Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get());
+        Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get(), (e, r) => {
 
-        self.autorun(function () {
-            self.subscribe('players', ROOM_ID);
-            self.subscribe('selectedCards', ROOM_ID);
-            self.subscribe('currentBlackCards', ROOM_ID);
+            if(e) {
+                alert(e);
+                return;
+            }
+            
+            self.autorun(function () {
+                self.subscribe('players', ROOM_ID);
+                self.subscribe('selectedCards', ROOM_ID);
+                self.subscribe('currentBlackCards', ROOM_ID);
+            });
         });
+
     });
 });
 
@@ -59,6 +66,11 @@ Template.game.events({
     'click #end' : function () {
 
         Meteor.call('endRound', ROOM_ID);
+    },
+
+    'click #exit' : function () {
+
+        Meteor.call('exitGame', ROOM_ID, Template.instance().playerName.get());
     }
 });
 
@@ -71,13 +83,11 @@ Template.game.helpers({
     player: function () {
         return Players.findOne({name: Template.instance().playerName.get(), roomId: ROOM_ID});
     },
-
+    players: function () {
+        return Players.find({roomId: ROOM_ID}).fetch();
+    },
     blankify: function (text) {
         return text && text.replace(/_/g, '________');
-    },
-
-    playerName: function() {
-        return Template.instance().playerName.get();
     },
 
     selectedCards: function() {
