@@ -1,5 +1,5 @@
-FlowRouter.route('/test', {
-    action: function(params) {
-        BlazeLayout.render('layout', {main: 'test'});
+Template.test.helpers({
+    items: function() {
+        return [1,2,3,4,5];
     }
 });

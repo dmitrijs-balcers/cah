@@ -14,5 +14,5 @@ Package.onUse(function (api) {
     api.versionsFrom('1.2.0.2');
     api.use('cah:common');
     api.addFiles('test.html', 'client');
-    api.addFiles('test.js', 'client');
+    api.addFiles('router.js', 'client');
 });
