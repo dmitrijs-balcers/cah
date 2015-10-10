@@ -14,7 +14,6 @@ function _getRandomBlackCard(roomId) {
     var card,
         randomId;
 
-
     console.log('packages/cards/cards.js', 'getting random black card for room', roomId);
 
     if(!blackCardsInRoom[roomId]) {
