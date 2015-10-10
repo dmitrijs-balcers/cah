@@ -6,8 +6,16 @@ if (Meteor.isClient) {
   Session.setDefault('counter', 0);
 
   Template.hello.helpers({
-    counter: function () {
-      return Session.get('counter');
+
+    whiteCard: function () {
+        //TODO: find 10 cards that are not in other players hands and not yet played
+        return WhiteCards.find({}, {limit:10});
+    },
+    blackCard: function() {
+        //TODO: chose random black card that has not been played in game
+        var card = BlackCards.findOne({_id:'vE9N4SmPDig3bsptF'});
+        card.text = card.text.replace('_', '_______');
+        return card;
     }
   });
 
