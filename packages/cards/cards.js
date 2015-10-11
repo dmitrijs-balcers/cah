@@ -121,7 +121,7 @@ function _getRandomWhiteCards(roomId, count) {
     if (whiteCardsInRoom[roomId].length <= 0) {
 
         console.error('No more white cards for room:', roomId);
-        
+
         whiteCards = WhiteCards.find({}).fetch();
 
         whiteCardsInRoom[roomId] = _.pluck(whiteCards, 'text');
@@ -342,7 +342,7 @@ function _tweet(winningCards) {
         } else {
 
             _.each(winningCards.whiteCards, function (whiteCard) {
-                message = message.replace('_', whiteCard);
+                message = message.replace('_', whiteCard.raplace(/./g,''));
             });
         }
 
