@@ -24,8 +24,6 @@ var libs = [
     'standard-minifiers',
     'es5-shim',
     'ecmascript',
-    'autopublish',
-    'insecure',
     'semantic:ui-css'
 ];
 

@@ -7,17 +7,32 @@ FlowRouter.route('/', {
 Template.welcome.onCreated(function () {
 
     this.subscribe('winningCards');
+    this.winningCard = new ReactiveVar();
+
+    var self = this;
+
+    updateWinningCard(self.winningCard);
+
+    Meteor.setInterval(function () {
+        updateWinningCard(self.winningCard);
+    }, 10000);
+
 });
+
+function updateWinningCard(winningCard) {
+    var total = WinningCards.find().count();
+    winningCard.set(WinningCards.findOne({}, {skip: _.random(0, total - 1)}));
+    console.log(winningCard.get());
+}
 
 Template.welcome.helpers({
     winningCard: function () {
-
-        var total = WinningCards.find().count();
-
-        return WinningCards.findOne({}, {skip: _.random(0, total - 1)});
+        return Template.instance().winningCard.get();
     },
 
     blackCard: function () {
+
+        console.log('blackCard');
 
         var self = this;
 
