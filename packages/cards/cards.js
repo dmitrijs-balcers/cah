@@ -137,7 +137,8 @@ function _initiatePlayer(roomId, name) {
         roomId: roomId,
         score: 0,
         cards: _getRandomWhiteCards(roomId, 10),
-        lastActivity: new Date()
+        lastActivity: new Date(),
+        canVote: true
     };
 
     Players.insert(player);
@@ -194,15 +195,23 @@ function _playerSelectedCard(roomId, playerName, card) {
 
 function _playerVotedForCard(roomId, playerName, selectedCardsId) {
 
-    var playerCard;
+    var playerCard,
+        player;
+
+    player = Players.findOne({name: playerName, roomId: roomId});
+
+    if(!player.canVote) {
+
+        console.error('player already voted');
+        throw new Meteor.Error('player already voted');
+    }
 
     Players.update(
         {
-            name: playerName,
-            roomId: roomId
+            _id: player._id
         },
         {
-            $set: {lastActivity: new Date()}
+            $set: {lastActivity: new Date(), canVote: false}
         }
     );
 
@@ -214,11 +223,14 @@ function _playerVotedForCard(roomId, playerName, selectedCardsId) {
     }
 
     SelectedCards.update({_id: selectedCardsId}, {$inc: {votes: 1}});
+    return;
 }
 
 function _endRound(roomId) {
 
-    var winningCards;
+    var winningCards,
+        players,
+        count;
 
     winningCards = SelectedCards.findOne({}, {sort: {votes: -1}, fields: {_id: 0}});
     winningCards.blackCard = CurrentBlackCards.findOne({roomId: roomId}).card;
@@ -234,18 +246,26 @@ function _endRound(roomId) {
             $inc: {score: 1}
         });
 
-    Players.update(
-        {roomId: roomId},
-        {
-            $push: {
-                cards: {
-                    $each: _getRandomWhiteCards(roomId, winningCards.whiteCards.length)
+    players = Players.find({roomId: roomId}).fetch();
+
+    _.each(players, function(player){
+
+        if(player.cards.length <= 10) {
+
+            count = 10 - player.cards.length;
+            Players.update(
+                {_id: player._id},
+                {
+                    $push: {
+                        cards: {
+                            $each: _getRandomWhiteCards(roomId, count)
+                        }
+                    },
+                    $set: {lastActivity: new Date(), canVote: true}
                 }
-            },
-            $set: {lastActivity: new Date()}
-        },
-        {multi: true}
-    );
+            );
+        }
+    });
 
     SelectedCards.remove({roomId: roomId});
 
