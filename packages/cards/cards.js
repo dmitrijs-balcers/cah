@@ -40,7 +40,7 @@ Meteor.setInterval(function () {
 Meteor.setInterval(function () {
 
     _endRound(ROOM_ID);
-}, 2 * 60 * 1000);
+}, 1 * 60 * 1000);
 
 Meteor.methods({
 
@@ -304,7 +304,7 @@ function _endRound(roomId) {
                             $each: _getRandomWhiteCards(roomId, count)
                         }
                     },
-                    $set: {lastActivity: new Date(), canVote: true}
+                    $set: {canVote: true}
                 }
             );
         }
