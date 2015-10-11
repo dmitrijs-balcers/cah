@@ -2,13 +2,26 @@
 
     <div class="ui grid">
         <div class="row">
-            <div class="sixteen wide column">
+            <div class="five wide column">
+                <p><b>SCORES:</b></p>
+                {{#each players}}
+                    <p>
+                        <b>{{this.name}} : {{this.score}}</b>
+                    </p>
+                {{/each}}
+            </div>
+            <div class="eleven wide column">
                 <div class="ui inverted segment" style="border: 1px solid white; margin: 10px;">
                     <b style="font-weight: 700">{{blankify blackCard.card}}</b>
                 </div>
+                <p><b>Selected cards:</b></p>
+                {{#each selectedCards}}
+                    {{> selectedCard}}
+                {{/each}}
             </div>
         </div>
         <div class="row">
+            <b style="font-weight: 600">Players cards ( {{player.name}} )</b>
             <div class="sixteen wide column">
                 <div class="ui horizontal list">
                     {{#each player.cards}}
@@ -18,23 +31,6 @@
             </div>
         </div>
     </div>
-
-    <b style="font-weight: 600">Players cards ( {{player.name}} )</b>
-
-    <p>
-        <b>Selected cards:</b>
-    </p>
-    {{#each selectedCards}}
-        {{> selectedCard}}
-    {{/each}}
-    <p>
-        <b>SCORES:</b>
-    </p>
-    {{#each players}}
-        <p>
-            <b>{{this.name}} : {{this.score}}</b>
-        </p>
-    {{/each}}
 
     <button class="ui orange basic right floated fluid inverted button" id="exit">Exit game</button>
 </template>
