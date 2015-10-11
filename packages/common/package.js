@@ -11,8 +11,9 @@ Package.describe({
 });
 
 var libs = [
-    'kadira:flow-router',
-    'kadira:blaze-layout',
+    'kadira:flow-router@2.6.2',
+    'meteorhacks:fast-render@2.10.0',
+    'kadira:blaze-layout@2.1.0',
     'ecmascript',
     'meteor-base',
     'mobile-experience',

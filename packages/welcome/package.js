@@ -13,9 +13,11 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.2.0.2');
   api.use('cah:common');
+
   api.use('reactive-var', 'client');
 
   api.addFiles('collections/collections.js');
+  api.addFiles('router/router.js');
 
   api.addFiles('server/winningCards.js', 'server');
 

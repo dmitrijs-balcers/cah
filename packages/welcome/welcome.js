@@ -1,12 +1,6 @@
-FlowRouter.route('/', {
-    action: function (params) {
-        BlazeLayout.render('layout', {main: 'welcome'});
-    }
-});
-
 Template.welcome.onCreated(function () {
 
-    this.subscribe('winningCards');
+    //this.subscribe('winningCards');
     this.winningCard = new ReactiveVar();
 
     var self = this;
@@ -15,14 +9,13 @@ Template.welcome.onCreated(function () {
 
     Meteor.setInterval(function () {
         updateWinningCard(self.winningCard);
-    }, 10000);
+    }, 5000);
 
 });
 
 function updateWinningCard(winningCard) {
     var total = WinningCards.find().count();
     winningCard.set(WinningCards.findOne({}, {skip: _.random(0, total - 1)}));
-    console.log(winningCard.get());
 }
 
 Template.welcome.helpers({
@@ -31,9 +24,6 @@ Template.welcome.helpers({
     },
 
     blackCard: function () {
-
-        console.log('blackCard');
-
         var self = this;
 
         if (self.blackCard.search("_") === -1) {
