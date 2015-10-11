@@ -27,7 +27,7 @@ Template.welcome.helpers({
         var self = this;
 
         if (self.blackCard.search("_") === -1) {
-            return self.blackCard + `${redify(self.whiteCards[0])}`;
+            return self.blackCard + ` ${redify(self.whiteCards[0])}`;
         }
 
         _.each(self.whiteCards, function (whiteCard) {
