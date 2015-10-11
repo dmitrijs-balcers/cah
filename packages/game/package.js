@@ -16,6 +16,8 @@ Package.onUse(function(api) {
   api.use(['reactive-var'], 'client');
   api.use('cah:common');
 
+  api.addFiles('router/router.js');
+
   api.addFiles('game.html', 'client');
   api.addFiles('game.js', 'client');
 });

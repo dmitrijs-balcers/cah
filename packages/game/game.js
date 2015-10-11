@@ -4,12 +4,6 @@ Players = new Mongo.Collection("players");
 SelectedCards = new Mongo.Collection("selectedCards");
 CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 
-FlowRouter.route('/game', {
-    action: function(params) {
-        BlazeLayout.render('layout', {main: 'game'});
-    }
-});
-
 Template.game.onCreated(function () {
 
     var self = this;
@@ -33,19 +27,7 @@ Template.game.onCreated(function () {
 
             self.playerName.set(r);
 
-            Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get(), (e) => {
-
-                if(e) {
-                    alert(e);
-                    return;
-                }
-
-                self.autorun(() => {
-                    self.subscribe('players', ROOM_ID);
-                    self.subscribe('selectedCards', ROOM_ID);
-                    self.subscribe('currentBlackCards', ROOM_ID);
-                });
-            });
+            Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get());
 
         });
     });
