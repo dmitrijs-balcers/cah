@@ -3,6 +3,8 @@ var blackCardsInRoom = {},
     maxCardCount = {},
     namesInUse = [];
 
+var Twit = Npm.require('twit');
+
 const ROOM_ID = 'roomId_hard1';
 
 Names = new Mongo.Collection('names');
@@ -10,6 +12,7 @@ BlackCards = new Mongo.Collection("blackCards");
 CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 WhiteCards = new Mongo.Collection("whiteCards");
 SelectedCards = new Mongo.Collection("selectedCards");
+Twitter = new Mongo.Collection("twitter");
 
 Meteor.publish('players', function (roomId) {
     return Players.find({roomId: roomId});
@@ -255,7 +258,7 @@ function _playerVotedForCard(roomId, playerName, selectedCardsId) {
 }
 
 function _endRound(roomId) {
-
+    console.log('ending round');
     var winningCards,
         players,
         count;
@@ -263,6 +266,7 @@ function _endRound(roomId) {
     winningCards = SelectedCards.findOne({}, {sort: {votes: -1}, fields: {_id: 0}});
 
     if(!winningCards) {
+        console.log('there are no WinningCards');
         return;
     }
 
@@ -303,6 +307,56 @@ function _endRound(roomId) {
     SelectedCards.remove({roomId: roomId});
 
     _getRandomBlackCard(roomId, true);
+
+    _tweet(winningCards);
+}
+
+function _tweet(winningCards) {
+    console.log('_tweet');
+    var twitterCredentials,
+        authHeaders,
+        message,
+        T;
+
+    message = winningCards.blackCard;
+
+    twitterCredentials = Twitter.findOne({_id:'1'});
+
+    if(twitterCredentials) {
+
+        T = new Twit({
+            consumer_key: twitterCredentials.apiKey,
+            consumer_secret: twitterCredentials.apiSecret,
+            access_token: twitterCredentials.userKey,
+            access_token_secret: twitterCredentials.userSecret
+        });
+
+        if(message.search("_") === -1) {
+            message = message + ' ' + winningCards.whiteCards[0];
+        } else {
+
+            _.each(winningCards.whiteCards, function (whiteCard) {
+                message = message.replace('_', whiteCard);
+            });
+        }
+
+        console.log('tweeting message', message);
+        if(message.length <= 140) {
+
+            T.post('statuses/update', { status: message }, function(err, data, response) {
+                if(err) {
+                    console.error(err, 'error tweeting message');
+                    return;
+                }
+                console.log('message tweeted');
+            });
+        } else {
+            console.error('message too big :(');
+        }
+        return;
+    }
+
+    console.error('Twitter not configured');
 }
 
 function _exitGame(roomId, playerName) {

@@ -1,3 +1,7 @@
+Npm.depends({
+    'twit': '2.1.0'
+});
+
 Package.describe({
   name: 'cah:cards',
   version: '0.0.1',
