@@ -28,7 +28,7 @@ Meteor.setInterval(function () {
 
     var players;
 
-    players = Players.find({lastActivity: {$lte: new Date(new Date() - 5 * 60 * 1000)}}).fetch();
+    players = Players.find({lastActivity: {$lte: new Date(new Date() - 3 * 60 * 1000)}}).fetch();
 
     _.each(players, function(player) {
 
