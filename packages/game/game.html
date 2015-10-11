@@ -5,23 +5,26 @@
             <div class="five wide column">
                 <p><b>SCORES:</b></p>
                 {{#each players}}
-                    <p>
-                        <b>{{this.name}} : {{this.score}}</b>
-                    </p>
+                    <b>{{this.name}} : {{this.score}}</b>
                 {{/each}}
             </div>
             <div class="eleven wide column">
                 <div class="ui inverted segment" style="border: 1px solid white; margin: 10px;">
                     <b style="font-weight: 700">{{blankify blackCard.card}}</b>
                 </div>
+
                 <p><b>Selected cards:</b></p>
-                {{#each selectedCards}}
-                    {{> selectedCard}}
-                {{/each}}
+
+                <div class="ui list">
+                    {{#each selectedCards}}
+                        {{> selectedCard}}
+                    {{/each}}
+                </div>
             </div>
         </div>
         <div class="row">
             <b style="font-weight: 600">Players cards ( {{player.name}} )</b>
+
             <div class="sixteen wide column">
                 <div class="ui horizontal list">
                     {{#each player.cards}}
@@ -49,13 +52,17 @@
 </template>
 
 <template name="selectedCard">
-    <ul>
-        {{#each this.whiteCards}}
-            <li class="selectedCard">{{this}}</li>
-        {{/each}}
-    </ul>
-    <button class="ui orange basic right floated fluid inverted button" id="vote" value="{{this._id}}">
-        Vote {{this.votes}}</button>
+    <div class="item">
+        <div class="ui inverted segment">
+            <div class="ui horizontal list">
+                {{#each this.whiteCards}}
+                    {{> card}}
+                {{/each}}
+            </div>
+            <button class="ui orange basic inverted button" id="vote" value="{{this._id}}">
+                Vote {{this.votes}}</button>
+        </div>
+    </div>
 </template>
 
 <template name="score">
