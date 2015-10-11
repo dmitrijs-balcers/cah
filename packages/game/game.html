@@ -25,9 +25,6 @@
         <b>Selected cards:</b>
     </p>
     {{#each selectedCards}}
-        <p>
-            <b>{{this.player}}</b>
-        </p>
         {{> selectedCard}}
     {{/each}}
     <p>
@@ -38,7 +35,7 @@
             <b>{{this.name}} : {{this.score}}</b>
         </p>
     {{/each}}
-    <button class="ui orange basic right floated fluid inverted button" id="end">End Round</button>
+
     <button class="ui orange basic right floated fluid inverted button" id="exit">Exit game</button>
 </template>
 

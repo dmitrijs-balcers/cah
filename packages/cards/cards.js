@@ -2,6 +2,8 @@ var blackCardsInRoom = {},
     whiteCardsInRoom = {},
     maxCardCount = {};
 
+const ROOM_ID = 'roomId_hard1';
+
 BlackCards = new Mongo.Collection("blackCards");
 CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 WhiteCards = new Mongo.Collection("whiteCards");
@@ -20,8 +22,21 @@ Meteor.publish('currentBlackCards', function (roomId) {
 
 Meteor.setInterval(function () {
 
-    Players.remove({lastActivity: {$lte: new Date(new Date() - 5 * 60 * 1000)}});
+    var players;
+
+    players = Players.find({lastActivity: {$lte: new Date(new Date() - 5 * 60 * 1000)}}).fetch();
+
+    _.each(players, function(player) {
+
+        _exitGame(player.roomId, player.name);
+    });
+
 }, 10 * 1000);
+
+Meteor.setInterval(function () {
+
+    _endRound(ROOM_ID);
+}, 30 * 1000);
 
 Meteor.methods({
 
@@ -29,7 +44,8 @@ Meteor.methods({
     initiatePlayer: _initiatePlayer,
     playerSelectedCard: _playerSelectedCard,
     playerVotedForCard: _playerVotedForCard,
-    endRound: _endRound
+    endRound: _endRound,
+    exitGame: _exitGame
 });
 
 function _getRandomBlackCard(roomId, regenerate) {
@@ -233,6 +249,11 @@ function _endRound(roomId) {
         count;
 
     winningCards = SelectedCards.findOne({}, {sort: {votes: -1}, fields: {_id: 0}});
+
+    if(!winningCards) {
+        return;
+    }
+    
     winningCards.blackCard = CurrentBlackCards.findOne({roomId: roomId}).card;
 
     WinningCards.insert(winningCards);
@@ -270,4 +291,17 @@ function _endRound(roomId) {
     SelectedCards.remove({roomId: roomId});
 
     _getRandomBlackCard(roomId, true);
+}
+
+function _exitGame(roomId, playerName) {
+
+    var player;
+
+    player = Players.findOne({name: playerName, roomId: roomId});
+
+    if(player) {
+
+        whiteCardsInRoom[roomId] = _.union(whiteCardsInRoom[roomId], player.cards);
+        Players.remove({_id: player._id});
+    }
 }

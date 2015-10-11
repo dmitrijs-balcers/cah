@@ -79,19 +79,14 @@ Template.game.events({
         //TODO:change from innerHTML to something more sensible
         Meteor.call('playerSelectedCard', ROOM_ID, t.playerName.get(), e.target.innerHTML);
     },
-
-    'click #end' : function () {
-
-        Meteor.call('endRound', ROOM_ID);
-    },
-
+    
     'click #exit' : function (e, t) {
 
         Meteor.call('exitGame', ROOM_ID, t.playerName.get());
     },
 
     'click #vote' : function (e, t) {
-        
+
         Meteor.call('playerVotedForCard', ROOM_ID, t.playerName.get(), e.target.value);
     }
 });
