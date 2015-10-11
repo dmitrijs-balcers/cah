@@ -53,7 +53,7 @@ Meteor.methods({
 
 function _getRandomBlackCard(roomId, regenerate) {
 
-    let card, randomId;
+    let card, randomId, blackCards;
 
     console.log('packages/cards/cards.js', 'getting random black card for room', roomId);
 
@@ -67,7 +67,7 @@ function _getRandomBlackCard(roomId, regenerate) {
 
         console.log('no black cards in the room');
 
-        var blackCards = BlackCards.find({}).fetch();
+        blackCards = BlackCards.find({}).fetch();
         blackCardsInRoom[roomId] = _.pluck(blackCards, 'text');
 
         regenerate = true;
@@ -78,7 +78,9 @@ function _getRandomBlackCard(roomId, regenerate) {
         if (blackCardsInRoom[roomId].length <= 0) {
 
             console.error('No more black cards for room:', roomId);
-            throw new Meteor.Error('No black more cards! :(');
+
+            blackCards = BlackCards.find({}).fetch();
+            blackCardsInRoom[roomId] = _.pluck(blackCards, 'text');
         }
 
         randomId = _.random(0, blackCardsInRoom[roomId].length - 1);
@@ -104,13 +106,14 @@ function _getRandomWhiteCards(roomId, count) {
 
     var card,
         cards,
-        randomId;
+        randomId,
+        whiteCards;
 
     console.log('packages/cards/cards.js', 'getting random ', count, ' white cards for room', roomId);
 
     if (!whiteCardsInRoom[roomId]) {
 
-        var whiteCards = WhiteCards.find({}).fetch();
+        whiteCards = WhiteCards.find({}).fetch();
 
         whiteCardsInRoom[roomId] = _.pluck(whiteCards, 'text');
     }
@@ -118,7 +121,10 @@ function _getRandomWhiteCards(roomId, count) {
     if (whiteCardsInRoom[roomId].length <= 0) {
 
         console.error('No more white cards for room:', roomId);
-        throw new Meteor.Error('No white more cards! :(');
+        
+        whiteCards = WhiteCards.find({}).fetch();
+
+        whiteCardsInRoom[roomId] = _.pluck(whiteCards, 'text');
     }
 
     cards = [];
