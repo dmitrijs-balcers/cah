@@ -8,5 +8,6 @@ FlowRouter.route('/game', {
     },
     action: function(params) {
         BlazeLayout.render('layout', {main: 'game'});
-    }
+    },
+    name: 'game'
 });
