@@ -3,17 +3,19 @@
     <div class="ui grid">
         <div class="row">
             <div class="five wide column">
-                <p><b>SCORES:</b></p>
-                {{#each players}}
-                    <b>{{this.name}} : {{this.score}}</b>
-                {{/each}}
+                <div class="ui raised inverted segment">
+                    <p><b>SCORES:</b></p>
+                    {{#each players}}
+                        <p><b>{{this.name}} : {{this.score}}</b></p>
+                    {{/each}}
+                </div>
             </div>
             <div class="eleven wide column">
                 <div class="ui inverted segment" style="border: 1px solid white; margin: 10px;">
                     <b style="font-weight: 700">{{blankify blackCard.card}}</b>
                 </div>
 
-                <p><b>Selected cards:</b></p>
+                {{#if selectedCards}}<b>Selected cards:</b>{{/if}}
 
                 <div class="ui list">
                     {{#each selectedCards}}
@@ -23,13 +25,20 @@
             </div>
         </div>
         <div class="row">
-            <b style="font-weight: 600">Players cards ( {{player.name}} )</b>
 
             <div class="sixteen wide column">
-                <div class="ui horizontal list">
-                    {{#each player.cards}}
-                        {{> card}}
-                    {{/each}}
+                <div class="ui inverted segment">
+                    <b style="font-weight: 600">Players cards ( {{player.name}} )</b>
+
+                    <h3>Your cards</h3>
+
+                    <div class="sixteen wide column">
+                        <div class="ui horizontal list">
+                            {{#each player.cards}}
+                                {{> card}}
+                            {{/each}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
