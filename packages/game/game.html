@@ -3,18 +3,18 @@
     <div class="ui grid">
         <div class="row">
             <div class="sixteen wide column">
-                <div style="border: 3px solid white; border-radius: 5px; max-width: 150px; padding: 5px">
+                <div class="ui inverted segment" style="border: 1px solid white; max-width: 150px">
                     <b style="font-weight: 700">{{blankify blackCard.card}}</b>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="sixteen wide column">
-                <ul>
+                <div class="ui horizontal list">
                     {{#each player.cards}}
                         {{> card}}
                     {{/each}}
-                </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -40,7 +40,14 @@
 </template>
 
 <template name="card">
-    <li style="border: 3px solid black; border-radius: 5px; max-width: 150px; padding: 5px; background-color: white; color: black">{{this}}</li>
+    <div class="item"
+         style="color: black;">
+        <div class="middle aligned content">
+            <div class="ui raised segment">
+                <span class="whiteCard">{{this}}</span>
+            </div>
+        </div>
+    </div>
 </template>
 
 <template name="selectedCard">
