@@ -1,6 +1,5 @@
 const ROOM_ID = 'roomId_hard1';
 
-Players = new Mongo.Collection("players");
 SelectedCards = new Mongo.Collection("selectedCards");
 CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 

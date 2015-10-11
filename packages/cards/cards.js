@@ -8,7 +8,6 @@ BlackCards = new Mongo.Collection("blackCards");
 CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 WhiteCards = new Mongo.Collection("whiteCards");
 SelectedCards = new Mongo.Collection("selectedCards");
-Players = new Mongo.Collection("players");
 
 Meteor.publish('players', function (roomId) {
     return Players.find({roomId: roomId});

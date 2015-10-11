@@ -17,5 +17,8 @@ var libs = [
 Package.onUse(function(api) {
 
   api.use(libs);
+  api.addFiles('collections/collections.js');
   api.addFiles('cards.js', 'server');
+
+  api.export('Players');
 });
