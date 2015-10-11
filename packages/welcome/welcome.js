@@ -6,8 +6,6 @@ FlowRouter.route('/', {
 
 Template.welcome.onCreated(function () {
 
-    // this <= Template.instance()
-
     this.subscribe('winningCards');
 });
 
