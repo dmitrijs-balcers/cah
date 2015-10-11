@@ -24,14 +24,17 @@ Template.welcome.helpers({
     },
 
     blackCard: function () {
-        var self = this;
+        var self = this,
+            card;
 
         if (self.blackCard.search("_") === -1) {
-            return self.blackCard + ` ${redify(self.whiteCards[0])}`;
+            card = self.whiteCards[0].replace(/./g,'');
+            return self.blackCard + ` ${redify(card)}`;
         }
 
         _.each(self.whiteCards, function (whiteCard) {
-            self.blackCard = self.blackCard.replace('_', `${redify(whiteCard)}`);
+            card = whiteCard.replace(/./g,'');
+            self.blackCard = self.blackCard.replace('_', `${redify(card)}`);
         });
 
         return self.blackCard;
