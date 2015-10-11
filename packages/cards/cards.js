@@ -40,7 +40,7 @@ Meteor.setInterval(function () {
 Meteor.setInterval(function () {
 
     _endRound(ROOM_ID);
-}, 30 * 1000);
+}, 2 * 60 * 1000);
 
 Meteor.methods({
 
