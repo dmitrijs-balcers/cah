@@ -1,9 +1,11 @@
 var blackCardsInRoom = {},
     whiteCardsInRoom = {},
-    maxCardCount = {};
+    maxCardCount = {},
+    namesInUse = [];
 
 const ROOM_ID = 'roomId_hard1';
 
+Names = new Mongo.Collection('names');
 BlackCards = new Mongo.Collection("blackCards");
 CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 WhiteCards = new Mongo.Collection("whiteCards");
@@ -39,7 +41,6 @@ Meteor.setInterval(function () {
 
 Meteor.methods({
 
-    getRandomBlackCard: _getRandomBlackCard,
     initiatePlayer: _initiatePlayer,
     playerSelectedCard: _playerSelectedCard,
     playerVotedForCard: _playerVotedForCard,
@@ -139,7 +140,9 @@ function _setMaxCardCount(roomId, count) {
     maxCardCount[roomId] = count;
 }
 
-function _initiatePlayer(roomId, name) {
+function _initiatePlayer(roomId) {
+
+    var name = _getName();
 
     var count = Players.find({roomId: roomId}).count();
 
@@ -157,6 +160,16 @@ function _initiatePlayer(roomId, name) {
     };
 
     Players.insert(player);
+
+    return name;
+}
+
+function _getName() {
+
+    var query = {name: {$nin: namesInUse}};
+    var name = Names.findOne(query, {skip: _.random(0, Names.find(query).count())}).name;
+    namesInUse.push(name);
+    return name;
 }
 
 function _playerSelectedCard(roomId, playerName, card) {
@@ -252,7 +265,7 @@ function _endRound(roomId) {
     if(!winningCards) {
         return;
     }
-    
+
     winningCards.blackCard = CurrentBlackCards.findOne({roomId: roomId}).card;
 
     WinningCards.insert(winningCards);

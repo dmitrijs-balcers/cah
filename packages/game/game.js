@@ -9,33 +9,15 @@ Template.game.onCreated(function () {
 
     self.playerName = new ReactiveVar();
 
-    Meteor.call('getRandomBlackCard', ROOM_ID, false, (e) => {
+    Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get(), (e, r) => {
 
-        if (e) {
-
-            console.error(e);
+        if(e) {
+            alert(e);
             return;
         }
-
-        Meteor.call('getName', (e, r) => {
-
-            if (e) {
-                console.error(e);
-                return;
-            }
-
-            self.playerName.set(r);
-
-            Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get(), (e) => {
-
-                if(e) {
-                    alert(e);
-                    return;
-                }
-            });
-
-        });
+        self.playerName.set(r);
     });
+
 });
 
 Template.game.helpers({
@@ -66,7 +48,7 @@ Template.game.events({
         //TODO:change from innerHTML to something more sensible
         Meteor.call('playerSelectedCard', ROOM_ID, t.playerName.get(), e.target.innerHTML);
     },
-    
+
     'click #exit' : function (e, t) {
 
         Meteor.call('exitGame', ROOM_ID, t.playerName.get());
