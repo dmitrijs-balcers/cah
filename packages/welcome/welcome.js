@@ -8,31 +8,30 @@ Template.welcome.onCreated(function () {
 
     // this <= Template.instance()
 
-    this.winningCard = {
-        player: 'Suzan',
-        whiteCards: ['blahA', 'blahB'],
-        blackCard: 'a: _, b: _',
-        votes: 10
-    };
+    this.subscribe('winningCards');
 });
 
 Template.welcome.helpers({
     winningCard: function () {
-        return Template.instance().winningCard;
+
+        var total = WinningCards.find().count();
+
+        return WinningCards.findOne({}, {skip: _.random(0, total - 1)});
     },
 
     blackCard: function () {
-        var winningCard = Template.instance().winningCard;
 
-        if (winningCard.blackCard.search("_") === -1) {
-            return winningCard.blackCard + `${redify(winningCard.whiteCards[0])}`;
+        var self = this;
+
+        if (self.blackCard.search("_") === -1) {
+            return self.blackCard + `${redify(self.whiteCards[0])}`;
         }
 
-        _.each(winningCard.whiteCards, function (whiteCard) {
-            winningCard.blackCard = winningCard.blackCard.replace('_', `${redify(whiteCard)}`);
+        _.each(self.whiteCards, function (whiteCard) {
+            self.blackCard = self.blackCard.replace('_', `${redify(whiteCard)}`);
         });
 
-        return winningCard.blackCard;
+        return self.blackCard;
     }
 });
 

@@ -1,0 +1,1 @@
+WinningCards = new Mongo.Collection('winningCards');

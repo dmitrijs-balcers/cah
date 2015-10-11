@@ -5,7 +5,6 @@ var blackCardsInRoom = {},
 BlackCards = new Mongo.Collection("blackCards");
 CurrentBlackCards = new Mongo.Collection("currentBlackCards");
 WhiteCards = new Mongo.Collection("whiteCards");
-WinningCards = new Mongo.Collection("winningCards");
 SelectedCards = new Mongo.Collection("selectedCards");
 Players = new Mongo.Collection("players");
 
