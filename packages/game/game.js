@@ -27,7 +27,13 @@ Template.game.onCreated(function () {
 
             self.playerName.set(r);
 
-            Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get());
+            Meteor.call('initiatePlayer', ROOM_ID, self.playerName.get(), (e) => {
+
+                if(e) {
+                    alert(e);
+                    return;
+                }
+            });
 
         });
     });
