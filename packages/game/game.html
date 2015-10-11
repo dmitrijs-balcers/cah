@@ -1,15 +1,26 @@
 <template name="game">
 
-    <p>
-        <b style="font-weight: 700"> Black card: {{blankify blackCard.card}}</b>
-    </p>
+    <div class="ui grid">
+        <div class="row">
+            <div class="sixteen wide column">
+                <div style="border: 3px solid white; border-radius: 5px; max-width: 150px; padding: 5px">
+                    <b style="font-weight: 700">{{blankify blackCard.card}}</b>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="sixteen wide column">
+                <ul>
+                    {{#each player.cards}}
+                        {{> card}}
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <b style="font-weight: 600">Players cards ( {{player.name}} )</b>
-    <ul>
-        {{#each player.cards}}
-            {{> card}}
-        {{/each}}
-    </ul>
+
     <p>
         <b>Selected cards:</b>
     </p>
@@ -32,7 +43,7 @@
 </template>
 
 <template name="card">
-    <li class="whiteCard">{{this}}</li>
+    <li style="border: 3px solid black; border-radius: 5px; max-width: 150px; padding: 5px; background-color: white; color: black">{{this}}</li>
 </template>
 
 <template name="selectedCard">
@@ -41,7 +52,8 @@
             <li class="selectedCard">{{this}}</li>
         {{/each}}
     </ul>
-    <button class="ui orange basic right floated fluid inverted button" id="vote" value="{{this._id}}">Vote {{this.votes}}</button>
+    <button class="ui orange basic right floated fluid inverted button" id="vote" value="{{this._id}}">
+        Vote {{this.votes}}</button>
 </template>
 
 <template name="score">
