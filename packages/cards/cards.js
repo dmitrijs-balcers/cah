@@ -322,6 +322,7 @@ function _tweet(winningCards) {
     var twitterCredentials,
         authHeaders,
         message,
+        hashtag,
         T;
 
     message = winningCards.blackCard;
@@ -342,12 +343,18 @@ function _tweet(winningCards) {
         } else {
 
             _.each(winningCards.whiteCards, function (whiteCard) {
-                message = message.replace('_', whiteCard.raplace(/./g,''));
+                message = message.replace('_', whiteCard);
             });
         }
+        hashtag = ' #cardsagainsthumanity';
 
-        console.log('tweeting message', message);
         if(message.length <= 140) {
+
+            if(message.length + hashtag.length <= 140) {
+                message = message + hashtag;
+            }
+
+            console.log('tweeting message', message);
 
             T.post('statuses/update', { status: message }, function(err, data, response) {
                 if(err) {
