@@ -207,11 +207,11 @@ function _playerVotedForCard(roomId, playerName, selectedCardsId) {
         }
     );
 
-    playerCard = SelectedCards.findOne({_id: selectedCardsId});
+    playerCard = SelectedCards.findOne({_id: selectedCardsId, player: playerName});
 
     if (playerCard) {
         console.error('player cannot vote for own card');
-        throw new Meteor.error('player cannot vote for his own card');
+        throw new Meteor.Error('player cannot vote for his own card');
     }
 
     SelectedCards.update({_id: selectedCardsId}, {$inc: {votes: 1}});
@@ -221,7 +221,7 @@ function _endRound(roomId) {
 
     var winningCards;
 
-    winningCards = SelectedCards.findOne({}, {sort: {votes: 1}, fields: {_id: 0}});
+    winningCards = SelectedCards.findOne({}, {sort: {votes: -1}, fields: {_id: 0}});
     winningCards.blackCard = CurrentBlackCards.findOne({roomId: roomId}).card;
 
     WinningCards.insert(winningCards);
